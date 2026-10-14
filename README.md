@@ -1,50 +1,39 @@
 # Student Project Tracker
 
-A full-stack web application designed to track electronics workshop and engineering project ideas. Built step-by-step through the WebDev Certification program.
+A hands-on web app development workshop project. It adds, displays, edits and deletes engineering projects, with data stored in local SQLite.
 
-## Architecture & Data Flow
+## Run locally
+Use the workshop Node 22 baseline (at least 22.18, below 23), Git and VS Code.
+Open a terminal inside the project, then run:
 
-```text
-Browser (UI) <---> fetch (/api/projects) <---> Express (app.js) <---> SQLite (node:sqlite)
-[HTML / CSS / JS]         [JSON REST API]        [Validation & Routing]     [data/projects.db]
-```
+    npm ci
+    npm start
 
-- **Frontend**: Semantic HTML5 ([public/index.html](public/index.html)), CSS3 responsive design ([public/style.css](public/style.css)), and asynchronous DOM manipulation ([public/script.js](public/script.js)).
-- **Backend**: Express 5 HTTP REST API ([app.js](app.js)) with strict input validation and centralized error handling, launched by [server.js](server.js).
-- **Persistence**: Embedded SQLite database ([database.js](database.js)) using Node 22 native `node:sqlite` (`DatabaseSync`), parameterized queries to prevent SQL injection, and schema constraints.
-- **Testing**: Automated end-to-end integration and smoke tests ([test/crud.test.js](test/crud.test.js)) testing CRUD, validation, API errors, and persistence across server restarts.
+Open http://localhost:3000. Stop the server with Ctrl+C.
 
-## Prerequisites
+## How it works
+Browser HTML/CSS/JavaScript -> fetch/HTTP -> Express API -> SQLite -> JSON response -> updated page.
+- `public/index.html`: page structure and form.
+- `public/style.css`: appearance and responsive layout.
+- `public/script.js`: input, API requests, rendering and feedback.
+- `server.js`: starts the local server.
+- `app.js`: routes, validation and responses.
+- `database.js`: SQLite operations; creates `data/projects.db` locally.
 
-- Node.js >= 22.18.0 (Node 22 LTS recommended)
-- npm
+## API
+- `GET /api/health` - checks server status (`{"ok": true}`).
+- `GET /api/projects` - lists all stored projects.
+- `POST /api/projects` - validates and creates a new project.
+- `PUT /api/projects/:id` - validates and updates an existing project.
+- `DELETE /api/projects/:id` - deletes a project by ID.
 
-## How to Run
+## Verification
+Actual checks performed:
+- **Automated test suite**: Ran `npm test` (`node --test test/*.test.js`). 1/1 test suite passed verifying CRUD endpoints, boundary validation (1–80 chars, invalid status rejection), 400/404 error cases, and database persistence across server restart.
+- **Manual CRUD lifecycle**: Created "IoT Monitor" with status "Planned", edited name and status to "Completed", and confirmed deletion with dialog prompt.
+- **Persistence across server restart**: Created records, shut down the server process, restarted it, and verified records still persisted with intact IDs from `data/projects.db`.
+- **Server downtime / error handling**: Attempted operations while server was stopped; verified the UI displays accessible error feedback without crashing.
+- **Mobile responsiveness**: Verified with DevTools viewport at 390px; form controls, buttons, and card actions remain accessible without horizontal scroll.
 
-1. **Install dependencies**:
-   ```bash
-   npm ci
-   ```
-
-2. **Run automated test suite**:
-   ```bash
-   npm test
-   ```
-   *Result*: 100% passing across CRUD, validation bounds (1-80 chars, allowed statuses), server restart persistence, and 400/404 error branches.
-
-3. **Start the local server**:
-   ```bash
-   npm start
-   ```
-
-4. **Access the application**:
-   Open [http://localhost:3000](http://localhost:3000) in your web browser.
-
-## Verified Behavior & Evidence
-
-- **Persistence**: Project entries are persisted to `data/projects.db` and survive server restarts and browser refreshes.
-- **Validation**:
-  - `name`: Required, trimmed, between 1 and 80 characters.
-  - `status`: Strictly constrained to `Planned`, `In Progress`, or `Completed`.
-  - Rejection of malformed JSON or payload sizes exceeding 10KB.
-- **Safety**: SQL statements use parameterized queries (`?`), preventing SQL injection. `data/`, `node_modules/`, and `.env` files are excluded from Git tracking via `.gitignore`.
+## Workshop limitations
+This local teaching app has no sign-in or per-user permissions. Browsers calling the same server share its collection. The SQLite data file and `node_modules` are not uploaded to GitHub. Cloud hosting requires separate server and database configuration.
