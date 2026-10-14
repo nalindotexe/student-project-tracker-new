@@ -1,10 +1,11 @@
 const STORAGE_KEY = 'workshop-projects-v1';
-let projects = [];
+let projects = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+function persist() { localStorage.setItem(STORAGE_KEY, JSON.stringify(projects)); }
 const store = {
   async list() { return projects; },
-  async create(project) { const saved = { id: crypto.randomUUID(), ...project }; projects.push(saved); return saved; },
-  async update(id, project) { const index = projects.findIndex(p => p.id === id); projects[index] = { id, ...project }; return projects[index]; },
-  async remove(id) { projects = projects.filter(p => p.id !== id); }
+  async create(project) { const saved = { id: crypto.randomUUID(), ...project }; projects.push(saved); persist(); return saved; },
+  async update(id, project) { const index = projects.findIndex(p => p.id === id); projects[index] = { id, ...project }; persist(); return projects[index]; },
+  async remove(id) { projects = projects.filter(p => p.id !== id); persist(); }
 };
 const form = document.querySelector('#project-form');
 const nameInput = document.querySelector('#name');
